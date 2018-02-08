@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ms1491.modules.appuser.dao.ThirdinfoDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.ms1491.modules.appuser.entity.ThirdinfoEntity" id="thirdinfoMap">
+        <result property="thirdUserId" column="THIRD_USER_ID"/>
+        <result property="uid" column="UID"/>
+        <result property="client" column="CLIENT"/>
+        <result property="thirdNickname" column="THIRD_NICKNAME"/>
+        <result property="thirdAvatar" column="THIRD_AVATAR"/>
+        <result property="openid" column="OPENID"/>
+        <result property="gender" column="GENDER"/>
+        <result property="livingPlace" column="LIVING_PLACE"/>
+        <result property="birthPlace" column="BIRTH_PLACE"/>
+        <result property="birthDay" column="BIRTH_DAY"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="com.ms1491.modules.appuser.entity.ThirdinfoEntity">
+		select * from sys_app_user_thirdinfo where THIRD_USER_ID = #{value}
+	</select>
+
+	<select id="queryList" resultType="com.ms1491.modules.appuser.entity.ThirdinfoEntity">
+		select * from sys_app_user_thirdinfo
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by THIRD_USER_ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from sys_app_user_thirdinfo 
+	</select>
+	 
+	<insert id="save" parameterType="com.ms1491.modules.appuser.entity.ThirdinfoEntity">
+		insert into sys_app_user_thirdinfo
+		(
+			`THIRD_USER_ID`, 
+			`UID`, 
+			`CLIENT`, 
+			`THIRD_NICKNAME`, 
+			`THIRD_AVATAR`, 
+			`OPENID`, 
+			`GENDER`, 
+			`LIVING_PLACE`, 
+			`BIRTH_PLACE`, 
+			`BIRTH_DAY`
+		)
+		values
+		(
+			#{thirdUserId}, 
+			#{uid}, 
+			#{client}, 
+			#{thirdNickname}, 
+			#{thirdAvatar}, 
+			#{openid}, 
+			#{gender}, 
+			#{livingPlace}, 
+			#{birthPlace}, 
+			#{birthDay}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ms1491.modules.appuser.entity.ThirdinfoEntity">
+		update sys_app_user_thirdinfo 
+		<set>
+			<if test="uid != null">`UID` = #{uid}, </if>
+			<if test="client != null">`CLIENT` = #{client}, </if>
+			<if test="thirdNickname != null">`THIRD_NICKNAME` = #{thirdNickname}, </if>
+			<if test="thirdAvatar != null">`THIRD_AVATAR` = #{thirdAvatar}, </if>
+			<if test="openid != null">`OPENID` = #{openid}, </if>
+			<if test="gender != null">`GENDER` = #{gender}, </if>
+			<if test="livingPlace != null">`LIVING_PLACE` = #{livingPlace}, </if>
+			<if test="birthPlace != null">`BIRTH_PLACE` = #{birthPlace}, </if>
+			<if test="birthDay != null">`BIRTH_DAY` = #{birthDay}</if>
+		</set>
+		where THIRD_USER_ID = #{thirdUserId}
+	</update>
+	
+	<delete id="delete">
+		delete from sys_app_user_thirdinfo where THIRD_USER_ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from sys_app_user_thirdinfo where THIRD_USER_ID in 
+		<foreach item="thirdUserId" collection="array" open="(" separator="," close=")">
+			#{thirdUserId}
+		</foreach>
+	</delete>
+
+</mapper>

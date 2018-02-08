@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>模板管理</title>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+<link rel="stylesheet" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" href="../../css/font-awesome.min.css">
+<link rel="stylesheet" href="../../plugins/jqgrid/ui.jqgrid-bootstrap.css">
+<link rel="stylesheet" href="../../plugins/ztree/css/metroStyle/metroStyle.css">
+<link rel="stylesheet" href="../../css/main.css">
+<script src="../../libs/jquery.min.js"></script>
+<script src="../../plugins/layer/layer.js"></script>
+<script src="../../libs/bootstrap.min.js"></script>
+<script src="../../libs/vue.min.js"></script>
+<script src="../../plugins/jqgrid/grid.locale-cn.js"></script>
+<script src="../../plugins/jqgrid/jquery.jqGrid.min.js"></script>
+<script src="../../plugins/ztree/jquery.ztree.all.min.js"></script>
+<script src="../../js/common.js"></script>
+<script src="../../libs/ajaxupload.js"></script>
+</head>
+<body>
+<div id="rrapp" v-cloak>
+	<div v-show="showList">
+		<div class="grid-btn">
+			<a v-if="hasPermission('template:save')" class="btn btn-primary" @click="add"><i class="fa fa-plus"></i>&nbsp;新增</a>
+			<a v-if="hasPermission('template:update')" class="btn btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
+			<a v-if="hasPermission('template:delete')" class="btn btn-primary" @click="del"><i class="fa fa-trash-o"></i>&nbsp;删除</a>
+		</div>
+	    <table id="jqGrid"></table>
+	    <div id="jqGridPager"></div>
+    </div>
+    
+    <div v-show="!showList" class="panel panel-default">
+		<div class="panel-heading">{{title}}</div>
+		<form class="form-horizontal">
+											<div class="form-group">
+			   	<div class="col-sm-2 control-label">模板名称</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="template.name" placeholder="模板名称"/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">模板标识</div>
+			   	<div class="col-sm-10">
+			      	<select class="form-control" v-model="template.code" placeholder="模板标识">
+						<option value="common_001">通用模板</option>
+						<option value="shop_001">电商模板1</option>
+						<option value="shop_002">电商模板2</option>
+						<option value="shop_003">电商模板3</option>
+					</select>
+			    </div>
+			</div>
+		<div class="form-group">
+			   	<div class="col-sm-2 control-label">广告栏文字</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="template.ad" placeholder="广告栏文字"/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">模型</div>
+			   	<div class="col-sm-10">
+			      <input id="model" type="text" class="form-control" v-model="template.model" placeholder="模型"/>
+			   	  <a class="btn btn-primary" id="uploadModel"><i class="fa fa-plus"></i>&nbsp;上传文件</a>
+			    </div>
+			</div>
+									<div class="form-group">
+			   	<div class="col-sm-2 control-label">图片</div>
+			   	<div class="col-sm-10">
+			      <input id="picture" type="text" class="form-control" v-model="template.picture" placeholder="图片"/>
+		   	      <a class="btn btn-primary" id="uploadPicture"><i class="fa fa-plus"></i>&nbsp;上传文件</a>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">状态</div>
+			   	<div class="col-sm-10">
+				   <select class="form-control" v-model="template.delete" placeholder="状态">
+						<option value="0">启用</option>
+						<option value="1">禁用</option>
+					</select>
+			    </div>
+			</div>
+							<div class="form-group">
+				<div class="col-sm-2 control-label"></div> 
+				<input type="button" class="btn btn-primary" @click="saveOrUpdate" value="确定"/>
+				&nbsp;&nbsp;<input type="button" class="btn btn-warning" @click="reload" value="返回"/>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script src="../../js/modules/shop/template.js"></script>
+</body>
+</html>

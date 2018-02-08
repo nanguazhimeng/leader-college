@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ms1491.modules.shop.dao.StoreGoodsDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.ms1491.modules.shop.entity.StoreGoodsEntity" id="storeGoodsMap">
+        <result property="storeGoodsId" column="store_goods_id"/>
+        <result property="storeId" column="store_id"/>
+        <result property="goodsId" column="goods_id"/>
+        <result property="goodscategoryId" column="GOODSCATEGORY_ID"/>
+        <result property="img" column="IMG"/>
+        <result property="title" column="TITLE"/>
+        <result property="total" column="TOTAL"/>
+        <result property="sales" column="SALES"/>
+        <result property="marketprice" column="MARKETPRICE"/>
+        <result property="originalprice" column="ORIGINALPRICE"/>
+        <result property="salesStatus" column="sales_status"/>
+    </resultMap>
+    <resultMap type="com.ms1491.modules.api.utils.GoodscategoryResponse" id="goodscategoryResponse">
+        <result property="goodscategoryId" column="GOODSCATEGORY_ID"/>
+        <result property="name" column="NAME"/>
+        <result property="icon" column="ICON"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="com.ms1491.modules.shop.entity.StoreGoodsEntity">
+		select * from shop_store_goods where store_goods_id = #{value}
+	</select>
+
+	<select id="queryObjectByStoreIdAndGoodsId" resultType="com.ms1491.modules.shop.entity.StoreGoodsEntity">
+		select * from shop_store_goods 
+		where
+		store_id = #{storeId} AND
+		goods_id = #{goodsId} 
+	</select>
+	
+ 	<select id="queryList" resultType="com.ms1491.modules.shop.entity.StoreGoodsEntity">
+		select * from 
+		(select 
+			g.goods_id,
+			g.IMG,
+			g.TITLE,
+			g.TOTAL,
+			g.SALES,
+			g.MARKETPRICE,
+			g.ORIGINALPRICE,
+			g.ISSHOW,
+			g.ISHOT,
+			g.ISNEW,
+			g.GOODSCATEGORY_ID,
+			g.ISRECOMMAND,
+			g.TYPE,
+			(select count(*) from shop_store_goods sg 
+				where sg.goods_id = g.goods_id AND sg.store_id = #{storeId}) as sales_status
+			from shop_goods g where g.ISSHOW=1 AND g.TYPE!=2
+			<if test="ishot != null">
+				AND g.ISHOT = #{ishot}
+			</if>
+			<if test="isrecommand != null">
+				AND g.ISRECOMMAND = #{isrecommand}
+			</if>
+			<if test="isnew != null">
+				AND g.ISNEW = #{isnew}
+			</if>
+			<if test="goodscategoryId != null">
+				AND g.GOODSCATEGORY_ID = #{goodscategoryId}
+			</if>
+			<if test="keywords != null and keywords.trim() != ''">
+			AND
+			(
+				g.TITLE LIKE CONCAT(CONCAT('%', #{keywords}),'%')
+			)
+			</if>
+			
+			)tmp
+			where 1=1
+			<if test="salesStatus != null">
+				AND tmp.sales_status = #{salesStatus}
+			</if>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by goods_id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select> 
+	
+ 	<select id="queryCategoryList" resultType="com.ms1491.modules.api.utils.GoodscategoryResponse">
+ 		select  gc.GOODSCATEGORY_ID,gc.DISPLAYORDER, gc.ICON,gc.NAME 
+ 		from   shop_store_goods sg,shop_goods g,SHOP_GOODSCATEGORY gc 
+ 		where sg.goods_id = g.goods_id AND g.type!='2' AND g.ISSHOW=1 AND g.GOODSCATEGORY_ID = gc.GOODSCATEGORY_ID
+ 		AND LEVEL = 2
+		<if test="storeId != null">
+			AND sg.STORE_ID = #{storeId}
+		</if>
+		<if test="isrecommand != null">
+			AND g.ISRECOMMAND = #{isrecommand}
+		</if>
+		 GROUP BY  gc.GOODSCATEGORY_ID
+		 ORDER BY  gc.DISPLAYORDER
+	</select> 
+	
+<!-- 	<select id="queryList" resultType="com.ms1491.modules.shop.entity.StoreGoodsEntity">
+		select * from 
+			(select
+				sg.STORE_GOODS_ID,
+				sg.STORE_ID,
+				sg.GOODS_ID,
+				g.IMG,
+				g.TITLE,
+				g.TOTAL,
+				g.SALES,
+				g.MARKETPRICE,
+				g.ISSHOW,
+				g.ISHOT,
+				g.ISRECOMMAND,
+				g.ISNEW,
+				1 as sales_status
+		 		from shop_store_goods sg,shop_goods g)tmp 
+			where tmp.ISSHOW=1
+			<if test="ishot != null">
+				AND tmp.ISHOT = ${ishot}
+			</if>
+			<if test="ISRECOMMAND != null">
+				AND tmp.ISRECOMMAND = ${isrecommand}
+			</if>
+			<if test="ISNEW != null">
+				AND tmp.ISNEW = ${isnew}
+			</if>
+			<if test="goodscategoryId != null">
+				AND tmp.GOODSCATEGORY_ID = ${goodscategoryId}
+			</if>
+	        <choose>
+	            <when test="sidx != null and sidx.trim() != ''">
+	                order by ${sidx} ${order}
+	            </when>
+				<otherwise>
+	                order by STORE_GOODS_ID desc
+				</otherwise>
+	        </choose>
+			<if test="offset != null and limit != null">
+				limit #{offset}, #{limit}
+			</if>
+	</select> -->
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from shop_store_goods 
+	</select>
+	 
+	<insert id="save" parameterType="com.ms1491.modules.shop.entity.StoreGoodsEntity">
+		insert into shop_store_goods
+		(
+			`store_goods_id`, 
+			`store_id`, 
+			`goods_id`
+		)
+		values
+		(
+			#{storeGoodsId}, 
+			#{storeId}, 
+			#{goodsId}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ms1491.modules.shop.entity.StoreGoodsEntity">
+		update shop_store_goods 
+		<set>
+			<if test="storeId != null">`store_id` = #{storeId}, </if>
+			<if test="goodsId != null">`goods_id` = #{goodsId}</if>
+		</set>
+		where store_goods_id = #{storeGoodsId}
+	</update>
+	
+	<delete id="delete">
+		delete from shop_store_goods where store_goods_id = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from shop_store_goods where store_goods_id in 
+		<foreach item="storeGoodsId" collection="array" open="(" separator="," close=")">
+			#{storeGoodsId}
+		</foreach>
+	</delete>
+
+</mapper>

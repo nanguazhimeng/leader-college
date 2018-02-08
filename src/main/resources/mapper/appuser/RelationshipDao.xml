@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ms1491.modules.appuser.dao.RelationshipDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.ms1491.modules.appuser.entity.RelationshipEntity" id="relationshipMap">
+        <result property="relationshipId" column="RELATIONSHIP_ID"/>
+        <result property="uid" column="UID"/>
+        <result property="puid" column="PUID"/>
+        <result property="subuids" column="SUBUIDS"/>
+        <result property="individualPerformance" column="INDIVIDUAL_PERFORMANCE"/>
+        <result property="teamPerformance" column="TEAM_PERFORMANCE"/>
+        <result property="totalCommission" column="TOTAL_COMMISSION"/>
+        <result property="commission" column="COMMISSION"/>
+        <result property="prize" column="PRIZE"/>
+        <result property="personal" column="PERSONAL"/>
+        <result property="status" column="STATUS"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="realname" column="REALNAME"/>
+        <result property="bankname" column="BANKNAME"/>
+        <result property="account" column="ACCOUNT"/>
+        <result property="checkTime" column="CHECK_TIME"/>
+        <result property="fans" column="FANS"/>
+        <result property="shengdaiNum" column="SHENGDAI_NUM"/>
+        <result property="idCardFace" column="Id_CARD_FACE"/>
+        <result property="idCardBack" column="Id_CARD_BACK"/>
+        <result property="phone" column="PHONE"/>
+        <result property="email" column="EMAIL"/>
+        <result property="address" column="ADDRESS"/>
+        <result property="username" column="username"/>
+        <result property="mobile" column="mobile"/>
+        <result property="rolename" column="rolename"/>
+        <result property="avatar" column="avatar"/>
+        <result property="pname" column="pname"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="com.ms1491.modules.appuser.entity.RelationshipEntity">
+		select * from sys_app_user_relationship where RELATIONSHIP_ID = #{value}
+	</select>
+
+	<select id="queryList" resultType="com.ms1491.modules.appuser.entity.RelationshipEntity">
+	SELECT temp.*,role.ROLE_NAME as rolename FROM 
+		(select
+			r.UID,
+			r.PUID,
+			r.INDIVIDUAL_PERFORMANCE,
+			r.TEAM_PERFORMANCE,
+			r.TOTAL_COMMISSION,
+			r.COMMISSION,
+			r.PERSONAL,
+			r.STATUS,
+			r.REALNAME,
+			r.BANKNAME,
+			r.ACCOUNT,
+			r.CREATE_TIME,
+			r.CHECK_TIME,
+			r.RELATIONSHIP_ID,
+			u1.USERNAME as username,
+			u1.IS_DELETE,
+			u1.AVATAR as avatar,
+			u1.phone as mobile,
+			u1.ROLE_ID as ROLE_ID,
+			u2.USERNAME as pname
+		from sys_app_user_relationship r
+		left join SYS_APP_USER u1 on r.UID = u1.USER_ID
+		left join SYS_APP_USER u2 on r.PUID = u2.USER_ID
+		GROUP BY r.RELATIONSHIP_ID)temp
+		LEFT JOIN SYS_ROLE role ON role.ROLE_ID=temp.ROLE_ID
+		where 1=1 AND temp.IS_DELETE = 0 
+		AND temp.STATUS in (1,2)
+        
+	    <if test="roleId != null and roleId.trim() != ''">
+            and temp.ROLE_ID = #{roleId}
+        </if>
+	    <if test="keywords != null and keywords.trim() != ''">
+            and temp.mobile = #{keywords}
+        </if>
+	    <if test="commission != null and commission.trim() != ''">
+            and temp.COMMISSION &gt; #{commission}
+        </if>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by temp.ROLE_ID asc ,temp.CHECK_TIME
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) FROM 
+		(select
+			r.UID,
+			r.PUID,
+			r.INDIVIDUAL_PERFORMANCE,
+			r.TEAM_PERFORMANCE,
+			r.TOTAL_COMMISSION,
+			r.COMMISSION,
+			r.PERSONAL,
+			r.STATUS,
+			r.REALNAME,
+			r.BANKNAME,
+			r.ACCOUNT,
+			r.CREATE_TIME,
+			r.CHECK_TIME,
+			r.RELATIONSHIP_ID,
+			u1.USERNAME as username,
+			u1.IS_DELETE,
+			u1.AVATAR as avatar,
+			u1.phone as mobile,
+			u1.ROLE_ID as ROLE_ID,
+			u2.USERNAME as pname
+		from sys_app_user_relationship r
+		left join SYS_APP_USER u1 on r.UID = u1.USER_ID
+		left join SYS_APP_USER u2 on r.PUID = u2.USER_ID
+		GROUP BY r.RELATIONSHIP_ID)temp
+		LEFT JOIN SYS_ROLE role ON role.ROLE_ID=temp.ROLE_ID
+		where 1=1 AND temp.IS_DELETE = 0 
+		AND temp.STATUS in (1,2)
+        
+	    <if test="roleId != null and roleId.trim() != ''">
+            and temp.ROLE_ID = #{roleId}
+        </if>
+	    <if test="keywords != null and keywords.trim() != ''">
+            and temp.mobile = #{keywords}
+        </if>
+	</select>
+	 
+	<insert id="save" parameterType="com.ms1491.modules.appuser.entity.RelationshipEntity">
+		insert into sys_app_user_relationship
+		(
+			`RELATIONSHIP_ID`, 
+			`UID`, 
+			`PUID`, 
+			`SUBUIDS`, 
+			`INDIVIDUAL_PERFORMANCE`, 
+			`TEAM_PERFORMANCE`, 
+			`TOTAL_COMMISSION`, 
+			`COMMISSION`, 
+			`PRIZE`, 
+			`PERSONAL`, 
+			`STATUS`, 
+			`CREATE_TIME`, 
+			`REALNAME`, 
+			`BANKNAME`, 
+			`ACCOUNT`, 
+			`CHECK_TIME`, 
+			`FANS`, 
+			`SHENGDAI_NUM`, 
+			`Id_CARD_FACE`, 
+			`Id_CARD_BACK`, 
+			`PHONE`, 
+			`EMAIL`, 
+			`ADDRESS`
+		)
+		values
+		(
+			#{relationshipId}, 
+			#{uid}, 
+			#{puid}, 
+			#{subuids}, 
+			#{individualPerformance}, 
+			#{teamPerformance}, 
+			#{totalCommission}, 
+			#{commission}, 
+			#{prize}, 
+			#{personal}, 
+			#{status}, 
+			#{createTime}, 
+			#{realname}, 
+			#{bankname}, 
+			#{account}, 
+			#{checkTime}, 
+			#{fans}, 
+			#{shengdaiNum}, 
+			#{idCardFace}, 
+			#{idCardBack}, 
+			#{phone}, 
+			#{email}, 
+			#{address}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ms1491.modules.appuser.entity.RelationshipEntity">
+		update sys_app_user_relationship 
+		<set>
+			<if test="uid != null">`UID` = #{uid}, </if>
+			<if test="puid != null">`PUID` = #{puid}, </if>
+			<if test="subuids != null">`SUBUIDS` = #{subuids}, </if>
+			<if test="individualPerformance != null">`INDIVIDUAL_PERFORMANCE` = #{individualPerformance}, </if>
+			<if test="teamPerformance != null">`TEAM_PERFORMANCE` = #{teamPerformance}, </if>
+			<if test="totalCommission != null">`TOTAL_COMMISSION` = #{totalCommission}, </if>
+			<if test="commission != null">`COMMISSION` = #{commission}, </if>
+			<if test="prize != null">`PRIZE` = #{prize}, </if>
+			<if test="personal != null">`PERSONAL` = #{personal}, </if>
+			<if test="status != null">`STATUS` = #{status}, </if>
+			<if test="createTime != null">`CREATE_TIME` = #{createTime}, </if>
+			<if test="realname != null">`REALNAME` = #{realname}, </if>
+			<if test="bankname != null">`BANKNAME` = #{bankname}, </if>
+			<if test="account != null">`ACCOUNT` = #{account}, </if>
+			<if test="checkTime != null">`CHECK_TIME` = #{checkTime}, </if>
+			<if test="fans != null">`FANS` = #{fans}, </if>
+			<if test="shengdaiNum != null">`SHENGDAI_NUM` = #{shengdaiNum}, </if>
+			<if test="idCardFace != null">`Id_CARD_FACE` = #{idCardFace}, </if>
+			<if test="idCardBack != null">`Id_CARD_BACK` = #{idCardBack}, </if>
+			<if test="phone != null">`PHONE` = #{phone}, </if>
+			<if test="email != null">`EMAIL` = #{email}, </if>
+			<if test="address != null">`ADDRESS` = #{address}</if>
+		</set>
+		where RELATIONSHIP_ID = #{relationshipId}
+	</update>
+	
+	<delete id="delete">
+		delete from sys_app_user_relationship where RELATIONSHIP_ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from sys_app_user_relationship where RELATIONSHIP_ID in 
+		<foreach item="relationshipId" collection="array" open="(" separator="," close=")">
+			#{relationshipId}
+		</foreach>
+	</delete>
+
+</mapper>

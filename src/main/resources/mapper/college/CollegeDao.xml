@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ms1491.modules.college.dao.CollegeDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.ms1491.modules.college.entity.CollegeEntity" id="collegeMap">
+        <result property="collegeId" column="college_id"/>
+        <result property="color" column="color"/>
+        <result property="title" column="title"/>
+        <result property="collegeIntroduction" column="college_introduction"/>
+        <result property="leaderIntroduction" column="leader_introduction"/>
+        <result property="courseSystem" column="course_system"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="com.ms1491.modules.college.entity.CollegeEntity">
+		select * from college_college where college_id = #{value}
+	</select>
+
+	<select id="queryList" resultType="com.ms1491.modules.college.entity.CollegeEntity">
+		select college_id,color,title,college_introduction,leader_introduction,course_system,create_time 
+		from college_college
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by college_id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from college_college 
+	</select>
+	 
+	<insert id="save" parameterType="com.ms1491.modules.college.entity.CollegeEntity">
+		insert into college_college
+		(
+			`college_id`, 
+			`color`, 
+			`title`, 
+			`college_introduction`, 
+			`leader_introduction`, 
+			`course_system`, 
+			`create_time`
+		)
+		values
+		(
+			#{collegeId}, 
+			#{color}, 
+			#{title}, 
+			#{collegeIntroduction}, 
+			#{leaderIntroduction}, 
+			#{courseSystem}, 
+			#{createTime}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ms1491.modules.college.entity.CollegeEntity">
+		update college_college 
+		<set>
+			<if test="color != null">`color` = #{color}, </if>
+			<if test="title != null">`title` = #{title}, </if>
+			<if test="collegeIntroduction != null">`college_introduction` = #{collegeIntroduction}, </if>
+			<if test="leaderIntroduction != null">`leader_introduction` = #{leaderIntroduction}, </if>
+			<if test="courseSystem != null">`course_system` = #{courseSystem}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}</if>
+		</set>
+		where college_id = #{collegeId}
+	</update>
+	
+	<delete id="delete">
+		delete from college_college where college_id = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from college_college where college_id in 
+		<foreach item="collegeId" collection="array" open="(" separator="," close=")">
+			#{collegeId}
+		</foreach>
+	</delete>
+
+</mapper>

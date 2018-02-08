@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ms1491.modules.shop.dao.GoodscategoryDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.ms1491.modules.shop.entity.GoodscategoryEntity" id="goodscategoryMap">
+        <result property="goodscategoryId" column="GOODSCATEGORY_ID"/>
+        <result property="name" column="NAME"/>
+        <result property="icon" column="ICON"/>
+        <result property="description" column="DESCRIPTION"/>
+        <result property="displayorder" column="DISPLAYORDER"/>
+        <result property="pid" column="PID"/>
+        <result property="level" column="LEVEL"/>
+        <result property="enabled" column="ENABLED"/>
+        <result property="ishome" column="ISHOME"/>
+        <result property="parentName" column="parentName"/>
+    </resultMap>
+	<select id="queryListParentId" resultType="com.ms1491.modules.shop.entity.GoodscategoryEntity">
+		select * from shop_goodscategory where pid = #{pid} order by DISPLAYORDER asc 
+	</select>
+	<select id="queryObject" resultType="com.ms1491.modules.shop.entity.GoodscategoryEntity">
+		select * from shop_goodscategory where GOODSCATEGORY_ID = #{value}
+	</select>
+
+	<select id="queryList" resultType="com.ms1491.modules.shop.entity.GoodscategoryEntity">
+		select s.*,(select p.NAME from shop_goodscategory p where p.GOODSCATEGORY_ID = s.PID) as parentName 
+		from shop_goodscategory s where s.enabled = 1
+		<if test="level != null">
+			AND s.level = ${level}
+		</if>
+		
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by s.GOODSCATEGORY_ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from shop_goodscategory 
+	</select>
+	 
+	<insert id="save" parameterType="com.ms1491.modules.shop.entity.GoodscategoryEntity">
+		insert into shop_goodscategory
+		(
+			`GOODSCATEGORY_ID`, 
+			`NAME`, 
+			`ICON`, 
+			`DESCRIPTION`, 
+			`DISPLAYORDER`, 
+			`PID`, 
+			`LEVEL`, 
+			`ENABLED`, 
+			`ISHOME`
+		)
+		values
+		(
+			#{goodscategoryId}, 
+			#{name}, 
+			#{icon}, 
+			#{description}, 
+			#{displayorder}, 
+			#{pid}, 
+			#{level}, 
+			#{enabled}, 
+			#{ishome}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ms1491.modules.shop.entity.GoodscategoryEntity">
+		update shop_goodscategory 
+		<set>
+			<if test="name != null">`NAME` = #{name}, </if>
+			<if test="icon != null">`ICON` = #{icon}, </if>
+			<if test="description != null">`DESCRIPTION` = #{description}, </if>
+			<if test="displayorder != null">`DISPLAYORDER` = #{displayorder}, </if>
+			<if test="pid != null">`PID` = #{pid}, </if>
+			<if test="level != null">`LEVEL` = #{level}, </if>
+			<if test="enabled != null">`ENABLED` = #{enabled}, </if>
+			<if test="ishome != null">`ISHOME` = #{ishome}</if>
+		</set>
+		where GOODSCATEGORY_ID = #{goodscategoryId}
+	</update>
+	
+	<delete id="delete">
+		delete from shop_goodscategory where GOODSCATEGORY_ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from shop_goodscategory where GOODSCATEGORY_ID in 
+		<foreach item="goodscategoryId" collection="array" open="(" separator="," close=")">
+			#{goodscategoryId}
+		</foreach>
+	</delete>
+
+</mapper>

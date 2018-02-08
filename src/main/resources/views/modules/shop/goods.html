@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>商品管理</title>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+<!-- webuploader上传插件 -->
+<link rel="stylesheet" type="text/css" href="../../plugins/webuploader/webuploader.css" />
+<link rel="stylesheet" type="text/css" href="../../plugins/webuploader/style.css" />
+<link rel="stylesheet" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" href="../../css/font-awesome.min.css">
+<link rel="stylesheet" href="../../plugins/jqgrid/ui.jqgrid-bootstrap.css">
+<link rel="stylesheet" href="../../plugins/ztree/css/metroStyle/metroStyle.css">
+<link rel="stylesheet" href="../../css/main.css">
+
+<script src="../../libs/jquery.min.js"></script>
+<script src="../../plugins/layer/layer.js"></script>
+<script src="../../libs/bootstrap.min.js"></script>
+<script src="../../libs/vue.min.js"></script>
+<script src="../../plugins/jqgrid/grid.locale-cn.js"></script>
+<script src="../../plugins/jqgrid/jquery.jqGrid.min.js"></script>
+<script src="../../plugins/ztree/jquery.ztree.all.min.js"></script>
+<script src="../../js/common.js"></script>
+<script src="../../libs/ajaxupload.js"></script>
+
+<script type="text/javascript" src="../../plugins/webuploader/webuploader.js"></script>
+
+</head>
+<body>
+<div id="rrapp" v-cloak>
+	<div v-show="showList">
+		<div class="grid-btn">
+			<a v-if="hasPermission('goods:save')" class="btn btn-primary" @click="add"><i class="fa fa-plus"></i>&nbsp;新增</a>
+			<a v-if="hasPermission('goods:update')" class="btn btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
+			<a v-if="hasPermission('goods:delete')" class="btn btn-primary" @click="del"><i class="fa fa-trash-o"></i>&nbsp;删除</a>
+		</div>
+	    <table id="jqGrid"></table>
+	    <div id="jqGridPager"></div>
+    </div>
+    
+    <div v-show="!showList" class="panel panel-default">
+		<div class="panel-heading">{{title}}</div>
+		<form class="form-horizontal">
+			
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">商品分类</div>
+			   	<div class="col-sm-10">
+					<input type="text" class="form-control"  style="cursor:pointer;"  v-model="goods.goodscategoryName"  @click="goodscategoryTree" placeholder="商品分类"/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">商品类型</div>
+			   	<div class="col-sm-10">
+			    	<label class="radio-inline"> 
+			   			<input type="radio" name = "type" value="1" v-model="goods.type"/> 实体商品
+			   		</label>
+			    	<label class="radio-inline"> 
+			   			<input type="radio" name = "type" value="2" v-model="goods.type"/> 虚拟商品
+			   		</label>
+			   		<label class="radio-inline"> 
+			   			<input type="radio" name = "type" value="3" v-model="goods.type"/> A类商品
+			   		</label>
+			   		<label class="radio-inline"> 
+			   			<input type="radio" name = "type" value="4" v-model="goods.type"/> B类商品
+			   		</label>
+			   		<label class="radio-inline"> 
+			   			<input type="radio" name = "type" value="5" v-model="goods.type"/> C类商品
+			   		</label>
+			   		<label class="radio-inline"> 
+			   			<input type="radio" name = "type" value="6" v-model="goods.type"/> D类商品
+			   		</label>
+			   		<label class="radio-inline"> 
+			   			<input type="radio" name = "type" value="7" v-model="goods.type"/> E类商品
+			   		</label>
+			   		<label class="radio-inline"> 
+			   			<input type="radio" name = "type" value="8" v-model="goods.type"/> F类商品
+			   		</label>
+			    	</select>
+			    </div>
+			</div>
+			
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">标题</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="goods.title" placeholder="标题"/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">副标题</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="goods.description" placeholder="描述"/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">详情内容</div>
+			   	<div class="col-sm-10">
+			    	<textarea rows="5" cols="6" class="form-control" v-model="goods.content" placeholder="详情内容"></textarea>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">商品属性</div>
+			   	<div class="col-sm-10">
+			   		<label class="radio-inline"> 
+			   			<input type="checkbox" name = "isnew" value="2" v-model="goods.isnew" /> 上新
+			   		</label>
+			   		<label class="radio-inline"> 
+			   			<input type="checkbox" name = "isrecommand" value="1" v-model="goods.isrecommand"/> 推荐
+			   		</label>
+			   		<label class="radio-inline"> 
+			   			<input type="checkbox" name = "ishot" value="1" v-model="goods.ishot"/> 热卖
+			   		</label>
+			   		<label class="radio-inline"> 
+			   			<input type="checkbox" name = "issendfree" value="1" v-model="goods.issendfree"/> 包邮
+			   		</label>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">商品现价</div>
+			   	<div class="col-sm-10">
+			   		<div class="input-group">
+            			<input type="text" v-model="goods.marketprice" placeholder="现价" class="form-control valid" value="" aria-invalid="false">
+            			<span class="input-group-addon">元 成本</span>
+            			<input type="text" v-model="goods.costprice" placeholder="成本" class="form-control valid" value="" aria-invalid="false">
+            			<span class="input-group-addon">元 原价</span>
+            			<input type="text" v-model="goods.originalprice" placeholder="原价" class="form-control valid" value="" aria-invalid="false">
+           				<span class="input-group-addon">元</span>
+       			 </div>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">库存</div>
+			   	<div class="col-sm-10">
+			   		<div class="input-group">
+			   			<input type="text" class="form-control" v-model="goods.total" placeholder="库存"/>
+			   			<span class="input-group-addon">件                                   已出售数</span>
+			   			<input type="text" class="form-control" v-model="goods.sales" placeholder="已出售数"/>
+			   			<span class="input-group-addon">件</span>
+			   		</div>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label"></div>
+			   	<div class="col-sm-10">
+			   	<label class="radio-inline"> 
+			   		<input type="radio" name = "totalcnf" value="0" v-model="goods.totalcnf"/> 拍下减库存
+			   	</label>
+			   	<label class="radio-inline"> 
+			   		 <input type="radio" name = "totalcnf" value="1" v-model="goods.totalcnf"/> 付款减库存
+			   	</label>
+			   	<label class="radio-inline"> 
+			   		<input type="radio" name = "totalcnf" value="2" v-model="goods.totalcnf"/> 永久不减
+			   	</label>	
+		    	</div>
+			</div>
+<!-- 			<div class="form-group">
+			   	<div class="col-sm-2 control-label">缩略图</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="goods.img" placeholder="图片"/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">轮播图</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="goods.imgs" placeholder="其他图片"/>
+			    </div>
+			</div> -->
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">详情图片内容</div>
+			   	<div class="col-sm-10" style="min-height: 150px;">
+			   		<div class="input-group">
+			      		<input type="text" class="form-control"  placeholder="图片详情"/>
+			      		<span class="input-group-btn">
+			      			<button class="btn btn-default" type="button" data-toggle="modal" data-target="#myModal" >选择图片</button>
+			      		</span>
+			      </div>
+			      <div class="input-group multi-img-details ui-sortable">
+			   	  </div>
+			   	  <span class="help-block">第一张为缩略图，建议为正方型图片，其他为详情页面图片</span>
+			    </div>
+			</div>
+			
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">是否上架</div>
+			   	<div class="col-sm-10">
+	    			<label class="radio-inline"> 
+				   		<input type="radio" name = "isshow" value="0" v-model="goods.isshow"/> 否
+				   	</label>
+				   	<label class="radio-inline"> 
+				   		 <input type="radio" name = "isshow" value="1" v-model="goods.isshow"/> 上架
+				   	</label>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">排序</div>
+			   	<div class="col-sm-10">
+			   		<div class="input-group">
+			   			<input type="text" class="form-control" v-model="goods.displayorder" placeholder="排序"/>
+			   			<span class="help-block"> 数字越小，排名越靠前，默认按创建时间排序</span>
+			   		</div>
+			    </div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label"></div> 
+				<input type="button" class="btn btn-primary" @click="saveOrUpdate" value="确定"/>
+				&nbsp;&nbsp;<input type="button" class="btn btn-warning" @click="reload" value="返回"/>
+			</div>
+		</form>
+	</div>
+</div>
+<div id="goodscategoryLayer" style="display: none;padding:10px;">
+	<ul id="goodscategoryTree" class="ztree"></ul>
+</div>
+  <!-- 上传图片 -->
+  <!-- 模态框（Modal） -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    封面图片
+                </h4>
+            </div>
+            <div class="modal-body">
+				<div id="uploader" class="wu-example">
+				    <div class="queueList">
+				        <div id="dndArea" class="placeholder">
+				            <div id="filePicker" class="webuploader-container">
+				            <div class="webuploader-pick">点击选择图片</div><div id="rt_rt_1binnblu91uid10p812ar8849nh1" style="position: absolute; top: 0px; left: 134.5px; width: 168px; height: 44px; overflow: hidden; bottom: auto; right: auto;"><input type="file" name="file" class="webuploader-element-invisible" multiple="multiple" accept="image/*">
+				            <label style="opacity: 0; width: 100%; height: 100%; display: block; cursor: pointer; background: rgb(255, 255, 255);"></label></div></div>
+				            <p>或将照片拖到这里，单次最多可选300张</p>
+				        </div>
+				        <ul class="filelist"></ul>
+				    </div>
+				    <div class="statusBar" style="display:none;">
+				        <div class="progress" style="display: none;">
+				            <span class="text">0%</span>
+				            <span class="percentage" style="width: 0%;"></span>
+				        </div><div class="info">共0张（0B），已上传0张</div>
+								<div class="btns">
+									<div id="filePicker2" class="webuploader-container">
+									 <input type="hidden" id="picturesId" value=""/>
+										<div class="webuploader-pick">继续添加</div>
+										<div id="rt_rt_1binnbluc18pevlkb9b101q1hvq6"
+											style="position: absolute; top: 0px; left: 0px; width: 1px; height: 1px; overflow: hidden;">
+											<input type="file" name="file"
+												class="webuploader-element-invisible" multiple="multiple"
+												accept="image/*"> <label
+												style="opacity: 0; width: 100%; height: 100%; display: block; cursor: pointer; background: rgb(255, 255, 255);">
+											</label>
+										</div>
+									</div>
+									<div class="uploadBtn state-pedding">确认使用</div>
+								</div>
+							</div>
+				</div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+    
+<script src="../../js/modules/shop/goods.js"></script>
+<script type="text/javascript">
+	function deleteMultiImage(elm){
+		$(elm).parent().remove();
+	}
+</script>
+</body>
+</html>

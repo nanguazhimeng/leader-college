@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ms1491.modules.article.dao.ArticleDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.ms1491.modules.article.entity.ArticleEntity" id="articleMap">
+        <result property="articleId" column="article_id"/>
+        <result property="themeId" column="theme_id"/>
+        <result property="themeName" column="themeName"/>
+        <result property="title" column="title"/>
+        <result property="contentType" column="content_type"/>
+        <result property="coverImg" column="cover_img"/>
+        <result property="url" column="url"/>
+        <result property="createTime" column="create_time"/>
+        <result property="playOrder" column="play_order"/>
+        <result property="duration" column="duration"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="com.ms1491.modules.article.entity.ArticleEntity">
+		select * from article where article_id = #{value}
+	</select>
+
+	<select id="queryList" resultType="com.ms1491.modules.article.entity.ArticleEntity">
+		select a.*,(select t.name from article_theme t where t.theme_id = a.theme_id) as themeName from article a
+        where 1=1
+       	<if test="themeId != null and themeId.trim() != ''">
+			AND a.theme_id = #{themeId}
+		</if>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by a.create_time desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from article 
+	</select>
+	 
+	<insert id="save" parameterType="com.ms1491.modules.article.entity.ArticleEntity">
+		insert into article
+		(
+			`article_id`, 
+			`theme_id`, 
+			`title`, 
+			`content_type`, 
+			`cover_img`, 
+			`url`, 
+			`create_time`, 
+			`play_order`, 
+			`duration`
+		)
+		values
+		(
+			#{articleId}, 
+			#{themeId}, 
+			#{title}, 
+			#{contentType}, 
+			#{coverImg}, 
+			#{url}, 
+			#{createTime}, 
+			#{playOrder}, 
+			#{duration}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ms1491.modules.article.entity.ArticleEntity">
+		update article 
+		<set>
+			<if test="themeId != null">`theme_id` = #{themeId}, </if>
+			<if test="title != null">`title` = #{title}, </if>
+			<if test="contentType != null">`content_type` = #{contentType}, </if>
+			<if test="coverImg != null">`cover_img` = #{coverImg}, </if>
+			<if test="url != null">`url` = #{url}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="playOrder != null">`play_order` = #{playOrder}, </if>
+			<if test="duration != null">`duration` = #{duration}</if>
+		</set>
+		where article_id = #{articleId}
+	</update>
+	
+	<delete id="delete">
+		delete from article where article_id = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from article where article_id in 
+		<foreach item="articleId" collection="array" open="(" separator="," close=")">
+			#{articleId}
+		</foreach>
+	</delete>
+
+</mapper>

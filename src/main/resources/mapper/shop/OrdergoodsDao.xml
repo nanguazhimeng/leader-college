@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ms1491.modules.shop.dao.OrdergoodsDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.ms1491.modules.shop.entity.OrdergoodsEntity" id="ordergoodsMap">
+        <result property="ordergoodsId" column="ORDERGOODS_ID"/>
+        <result property="orderId" column="ORDER_ID"/>
+        <result property="goodsId" column="GOODS_ID"/>
+        <result property="price" column="PRICE"/>
+        <result property="total" column="TOTAL"/>
+        <result property="items" column="ITEMS"/>
+        <result property="title" column="title"/>
+        <result property="createTime" column="CREATE_TIME"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="com.ms1491.modules.shop.entity.OrdergoodsEntity">
+		select * from sys_ordergoods where ORDERGOODS_ID = #{value}
+	</select>
+
+	<select id="queryList" resultType="com.ms1491.modules.shop.entity.OrdergoodsEntity">
+		select og.*, g.TITLE as title
+		
+		from sys_ordergoods og
+		
+		left join shop_goods g on g.GOODS_ID = og.GOODS_ID
+		
+		where 1=1
+        <if test="orderId != null and orderId.trim() != ''">
+            and og.ORDER_ID = #{orderId}
+        </if>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by ORDERGOODS_ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from sys_ordergoods 
+	</select>
+	 
+	<insert id="save" parameterType="com.ms1491.modules.shop.entity.OrdergoodsEntity">
+		insert into sys_ordergoods
+		(
+			`ORDERGOODS_ID`, 
+			`ORDER_ID`, 
+			`GOODS_ID`, 
+			`PRICE`, 
+			`TOTAL`, 
+			`ITEMS`, 
+			`CREATE_TIME`
+		)
+		values
+		(
+			#{ordergoodsId}, 
+			#{orderId}, 
+			#{goodsId}, 
+			#{price}, 
+			#{total}, 
+			#{items}, 
+			#{createTime}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ms1491.modules.shop.entity.OrdergoodsEntity">
+		update sys_ordergoods 
+		<set>
+			<if test="orderId != null">`ORDER_ID` = #{orderId}, </if>
+			<if test="goodsId != null">`GOODS_ID` = #{goodsId}, </if>
+			<if test="price != null">`PRICE` = #{price}, </if>
+			<if test="total != null">`TOTAL` = #{total}, </if>
+			<if test="items != null">`ITEMS` = #{items}, </if>
+			<if test="createTime != null">`CREATE_TIME` = #{createTime}</if>
+		</set>
+		where ORDERGOODS_ID = #{ordergoodsId}
+	</update>
+	
+	<delete id="delete">
+		delete from sys_ordergoods where ORDERGOODS_ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from sys_ordergoods where ORDERGOODS_ID in 
+		<foreach item="ordergoodsId" collection="array" open="(" separator="," close=")">
+			#{ordergoodsId}
+		</foreach>
+	</delete>
+
+</mapper>

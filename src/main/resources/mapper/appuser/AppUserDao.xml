@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ms1491.modules.appuser.dao.AppUserDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.ms1491.modules.appuser.entity.AppUserEntity" id="userMap">
+        <result property="userId" column="USER_ID"/>
+        <result property="username" column="USERNAME"/>
+        <result property="phone" column="PHONE"/>
+        <result property="password" column="PASSWORD"/>
+        <result property="roleId" column="ROLE_ID"/>
+        <result property="status" column="STATUS"/>
+        <result property="avatar" column="AVATAR"/>
+        <result property="gender" column="GENDER"/>
+        <result property="birthDay" column="BIRTH_DAY"/>
+        <result property="birthPlace" column="BIRTH_PLACE"/>
+        <result property="livingPlace" column="LIVING_PLACE"/>
+        <result property="accountMoney" column="ACCOUNT_MONEY"/>
+        <result property="testMoney" column="TEST_MONEY"/>
+        <result property="rongToken" column="RONG_TOKEN"/>
+        <result property="startTime" column="START_TIME"/>
+        <result property="email" column="EMAIL"/>
+        <result property="introduction" column="INTRODUCTION"/>
+        <result property="honor" column="HONOR"/>
+        <result property="tag" column="TAG"/>
+        <result property="videoUrl" column="VIDEO_URL"/>
+        <result property="accessToken" column="ACCESS_TOKEN"/>
+        <result property="exclusiveCode" column="EXCLUSIVE_CODE"/>
+        <result property="twoDimensionCode" column="TWO_DIMENSION_CODE"/>
+        <result property="isDelete" column="IS_DELETE"/>
+        <result property="pid" column="PID"/>
+        <result property="lifeCode" column="LIFE_CODE"/>
+        <result property="lifeDetail" column="LIFE_DETAIL"/>
+  		<result property="pstoreId" column="PSTORE_ID"/>
+  		<result property="puid" column="PUID"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="com.ms1491.modules.appuser.entity.AppUserEntity">
+		select u.*,r.PUID from sys_app_user u,sys_app_user_relationship r
+		where u.USER_ID=r.UID AND u.IS_DELETE='0' AND u.USER_ID = #{value} 
+	</select>
+
+	<select id="queryList" resultType="com.ms1491.modules.appuser.entity.AppUserEntity">
+		select * from sys_app_user
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by USER_ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from sys_app_user 
+	</select>
+	 
+	<insert id="save" parameterType="com.ms1491.modules.appuser.entity.AppUserEntity">
+		insert into sys_app_user
+		(
+			`USER_ID`, 
+			`USERNAME`, 
+			`PHONE`, 
+			`PASSWORD`, 
+			`ROLE_ID`, 
+			`STATUS`, 
+			`AVATAR`, 
+			`GENDER`, 
+			`BIRTH_DAY`, 
+			`BIRTH_PLACE`, 
+			`LIVING_PLACE`, 
+			`ACCOUNT_MONEY`, 
+			`TEST_MONEY`, 
+			`RONG_TOKEN`, 
+			`START_TIME`, 
+			`EMAIL`, 
+			`INTRODUCTION`, 
+			`HONOR`, 
+			`TAG`, 
+			`VIDEO_URL`, 
+			`ACCESS_TOKEN`, 
+			`EXCLUSIVE_CODE`, 
+			`TWO_DIMENSION_CODE`, 
+			`IS_DELETE`, 
+			`PID`, 
+			`LIFE_CODE`, 
+			`LIFE_DETAIL`
+		)
+		values
+		(
+			#{userId}, 
+			#{username}, 
+			#{phone}, 
+			#{password}, 
+			#{roleId}, 
+			#{status}, 
+			#{avatar}, 
+			#{gender}, 
+			#{birthDay}, 
+			#{birthPlace}, 
+			#{livingPlace}, 
+			#{accountMoney}, 
+			#{testMoney}, 
+			#{rongToken}, 
+			#{startTime}, 
+			#{email}, 
+			#{introduction}, 
+			#{honor}, 
+			#{tag}, 
+			#{videoUrl}, 
+			#{accessToken}, 
+			#{exclusiveCode}, 
+			#{twoDimensionCode}, 
+			#{isDelete}, 
+			#{pid}, 
+			#{lifeCode}, 
+			#{lifeDetail}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ms1491.modules.appuser.entity.AppUserEntity">
+		update sys_app_user 
+		<set>
+			<if test="username != null">`USERNAME` = #{username}, </if>
+			<if test="phone != null">`PHONE` = #{phone}, </if>
+			<if test="password != null">`PASSWORD` = #{password}, </if>
+			<if test="roleId != null">`ROLE_ID` = #{roleId}, </if>
+			<if test="status != null">`STATUS` = #{status}, </if>
+			<if test="avatar != null">`AVATAR` = #{avatar}, </if>
+			<if test="gender != null">`GENDER` = #{gender}, </if>
+			<if test="birthDay != null">`BIRTH_DAY` = #{birthDay}, </if>
+			<if test="birthPlace != null">`BIRTH_PLACE` = #{birthPlace}, </if>
+			<if test="livingPlace != null">`LIVING_PLACE` = #{livingPlace}, </if>
+			<if test="accountMoney != null">`ACCOUNT_MONEY` = #{accountMoney}, </if>
+			<if test="testMoney != null">`TEST_MONEY` = #{testMoney}, </if>
+			<if test="rongToken != null">`RONG_TOKEN` = #{rongToken}, </if>
+			<if test="startTime != null">`START_TIME` = #{startTime}, </if>
+			<if test="email != null">`EMAIL` = #{email}, </if>
+			<if test="introduction != null">`INTRODUCTION` = #{introduction}, </if>
+			<if test="honor != null">`HONOR` = #{honor}, </if>
+			<if test="tag != null">`TAG` = #{tag}, </if>
+			<if test="videoUrl != null">`VIDEO_URL` = #{videoUrl}, </if>
+			<if test="accessToken != null">`ACCESS_TOKEN` = #{accessToken}, </if>
+			<if test="exclusiveCode != null">`EXCLUSIVE_CODE` = #{exclusiveCode}, </if>
+			<if test="twoDimensionCode != null">`TWO_DIMENSION_CODE` = #{twoDimensionCode}, </if>
+			<if test="isDelete != null">`IS_DELETE` = #{isDelete}, </if>
+			<if test="pid != null">`PID` = #{pid}, </if>
+			<if test="lifeCode != null">`LIFE_CODE` = #{lifeCode}, </if>
+			<if test="lifeDetail != null">`LIFE_DETAIL` = #{lifeDetail}</if>
+		</set>
+		where USER_ID = #{userId}
+	</update>
+	
+	<delete id="delete">
+		delete from sys_app_user where USER_ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from sys_app_user where USER_ID in 
+		<foreach item="userId" collection="array" open="(" separator="," close=")">
+			#{userId}
+		</foreach>
+	</delete>
+
+</mapper>

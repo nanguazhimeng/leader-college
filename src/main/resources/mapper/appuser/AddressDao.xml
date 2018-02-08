@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ms1491.modules.appuser.dao.AddressDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.ms1491.modules.appuser.entity.AddressEntity" id="addressMap">
+        <result property="addressId" column="ADDRESS_ID"/>
+        <result property="uid" column="UID"/>
+        <result property="username" column="USERNAME"/>
+        <result property="mobile" column="MOBILE"/>
+        <result property="address" column="ADDRESS"/>
+        <result property="zipcode" column="ZIPCODE"/>
+        <result property="province" column="PROVINCE"/>
+        <result property="city" column="CITY"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="com.ms1491.modules.appuser.entity.AddressEntity">
+		select * from sys_app_user_address where ADDRESS_ID = #{value}
+	</select>
+
+	<select id="queryList" resultType="com.ms1491.modules.appuser.entity.AddressEntity">
+		select * from sys_app_user_address
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by ADDRESS_ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from sys_app_user_address 
+	</select>
+	 
+	<insert id="save" parameterType="com.ms1491.modules.appuser.entity.AddressEntity">
+		insert into sys_app_user_address
+		(
+			`ADDRESS_ID`, 
+			`UID`, 
+			`USERNAME`, 
+			`MOBILE`, 
+			`ADDRESS`, 
+			`ZIPCODE`, 
+			`PROVINCE`, 
+			`CITY`
+		)
+		values
+		(
+			#{addressId}, 
+			#{uid}, 
+			#{username}, 
+			#{mobile}, 
+			#{address}, 
+			#{zipcode}, 
+			#{province}, 
+			#{city}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ms1491.modules.appuser.entity.AddressEntity">
+		update sys_app_user_address 
+		<set>
+			<if test="uid != null">`UID` = #{uid}, </if>
+			<if test="username != null">`USERNAME` = #{username}, </if>
+			<if test="mobile != null">`MOBILE` = #{mobile}, </if>
+			<if test="address != null">`ADDRESS` = #{address}, </if>
+			<if test="zipcode != null">`ZIPCODE` = #{zipcode}, </if>
+			<if test="province != null">`PROVINCE` = #{province}, </if>
+			<if test="city != null">`CITY` = #{city}</if>
+		</set>
+		where ADDRESS_ID = #{addressId}
+	</update>
+	
+	<delete id="delete">
+		delete from sys_app_user_address where ADDRESS_ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from sys_app_user_address where ADDRESS_ID in 
+		<foreach item="addressId" collection="array" open="(" separator="," close=")">
+			#{addressId}
+		</foreach>
+	</delete>
+
+</mapper>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ms1491.modules.shop.dao.CommissionlogDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.ms1491.modules.shop.entity.CommissionlogEntity" id="commissionlogMap">
+        <result property="commissionlogId" column="COMMISSIONLOG_ID"/>
+        <result property="currentCommission" column="CURRENT_COMMISSION"/>
+        <result property="addCommision" column="ADD_COMMISION"/>
+        <result property="addIndividual" column="ADD_INDIVIDUAL"/>
+        <result property="addTeam" column="ADD_TEAM"/>
+        <result property="remark" column="REMARK"/>
+        <result property="uid" column="UID"/>
+        <result property="type" column="TYPE"/>
+        <result property="createtime" column="CREATETIME"/>
+        <result property="outTradeNo" column="OUT_TRADE_NO"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="com.ms1491.modules.shop.entity.CommissionlogEntity">
+		select * from shop_commissionlog where COMMISSIONLOG_ID = #{value}
+	</select>
+
+	<select id="queryList" resultType="com.ms1491.modules.shop.entity.CommissionlogEntity">
+		select * from shop_commissionlog
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by COMMISSIONLOG_ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from shop_commissionlog 
+		where 1=1
+		<if test="uid != null and uid.trim() != ''">
+			AND UID = #{uid}
+		</if>
+		
+	</select>
+	 
+	<insert id="save" parameterType="com.ms1491.modules.shop.entity.CommissionlogEntity">
+		insert into shop_commissionlog
+		(
+			`COMMISSIONLOG_ID`, 
+			`CURRENT_COMMISSION`, 
+			`ADD_COMMISION`, 
+			`ADD_INDIVIDUAL`, 
+			`ADD_TEAM`, 
+			`REMARK`, 
+			`UID`, 
+			`TYPE`, 
+			`CREATETIME`, 
+			`OUT_TRADE_NO`
+		)
+		values
+		(
+			#{commissionlogId}, 
+			#{currentCommission}, 
+			#{addCommision}, 
+			#{addIndividual}, 
+			#{addTeam}, 
+			#{remark}, 
+			#{uid}, 
+			#{type}, 
+			#{createtime}, 
+			#{outTradeNo}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ms1491.modules.shop.entity.CommissionlogEntity">
+		update shop_commissionlog 
+		<set>
+			<if test="currentCommission != null">`CURRENT_COMMISSION` = #{currentCommission}, </if>
+			<if test="addCommision != null">`ADD_COMMISION` = #{addCommision}, </if>
+			<if test="addIndividual != null">`ADD_INDIVIDUAL` = #{addIndividual}, </if>
+			<if test="addTeam != null">`ADD_TEAM` = #{addTeam}, </if>
+			<if test="remark != null">`REMARK` = #{remark}, </if>
+			<if test="uid != null">`UID` = #{uid}, </if>
+			<if test="type != null">`TYPE` = #{type}, </if>
+			<if test="createtime != null">`CREATETIME` = #{createtime}, </if>
+			<if test="outTradeNo != null">`OUT_TRADE_NO` = #{outTradeNo}</if>
+		</set>
+		where COMMISSIONLOG_ID = #{commissionlogId}
+	</update>
+	
+	<delete id="delete">
+		delete from shop_commissionlog where COMMISSIONLOG_ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from shop_commissionlog where COMMISSIONLOG_ID in 
+		<foreach item="commissionlogId" collection="array" open="(" separator="," close=")">
+			#{commissionlogId}
+		</foreach>
+	</delete>
+
+</mapper>

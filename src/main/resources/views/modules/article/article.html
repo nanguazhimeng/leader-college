@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+	<link rel="stylesheet" href="../../css/bootstrap.min.css">
+	<link rel="stylesheet" href="../../css/font-awesome.min.css">
+	<link rel="stylesheet" href="../../plugins/jqgrid/ui.jqgrid-bootstrap.css">
+	<link rel="stylesheet" href="../../plugins/ztree/css/metroStyle/metroStyle.css">
+	<link rel="stylesheet" href="../../css/bootstrap-table.min.css">
+	<link rel="stylesheet" href="../../css/main.css">
+	<link rel="stylesheet" href="../../plugins/treegrid/jquery.treegrid.css">
+
+	<script src="../../libs/jquery.min.js"></script>
+	<script src="../../plugins/layer/layer.js"></script>
+	<script src="../../libs/bootstrap.min.js"></script>
+	<script src="../../libs/vue.min.js"></script>
+	<script src="../../libs/bootstrap-table.min.js"></script>
+	<script src="../../plugins/treegrid/jquery.treegrid.min.js"></script>
+	<script src="../../plugins/treegrid/jquery.treegrid.bootstrap3.js"></script>
+	<script src="../../plugins/treegrid/jquery.treegrid.extension.js"></script>
+	<script src="../../plugins/treegrid/tree.table.js"></script>
+	<script src="../../plugins/jqgrid/grid.locale-cn.js"></script>
+	<script src="../../plugins/jqgrid/jquery.jqGrid.min.js"></script>
+	<script src="../../plugins/ztree/jquery.ztree.all.min.js"></script>
+	<script src="../../js/common.js"></script>
+<script src="../../libs/ajaxupload.js"></script>
+</head>
+<body>
+<div id="rrapp" v-cloak>
+	<div v-show="showList">
+		<div class="grid-btn">
+			<a v-if="hasPermission('article:save')" class="btn btn-primary" @click="add"><i class="fa fa-plus"></i>&nbsp;新增</a>
+			<a v-if="hasPermission('article:update')" class="btn btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
+			<a v-if="hasPermission('article:delete')" class="btn btn-primary" @click="del"><i class="fa fa-trash-o"></i>&nbsp;删除</a>
+		</div>
+	    <table id="jqGrid"></table>
+	    <div id="jqGridPager"></div>
+    </div>
+    
+    <div v-show="!showList" class="panel panel-default">
+		<div class="panel-heading">{{title}}</div>
+		<form class="form-horizontal">
+		<div class="form-group">
+			   	<div class="col-sm-2 control-label">主题</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control"  style="cursor:pointer;"  v-model="article.themeName"  @click="themeTree" placeholder="主题"/>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">标题</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="article.title" placeholder="标题"/>
+			    </div>
+			</div>
+<!-- 			<div class="form-group">
+			   	<div class="col-sm-2 control-label">内容属性</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="article.contentType" placeholder="类型"/>
+			    </div>
+			</div> -->
+ 			<div class="form-group">
+			   	<div class="col-sm-2 control-label">封面图片</div>
+			   	<div class="col-sm-10" style="min-height: 130px;">
+			      <input id="coverImg" type="text" class="form-control" v-model="article.coverImg" placeholder="封面图片" readonly="readonly"/>
+			   	  <button class="btn btn-default" type="button" id="upload">选择图片</button>
+			   	  <div class="input-group multi-img-details ui-sortable" style="width:50px; height: 50px;">
+			   	  </div>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div  v-show="article.contentType == 1" class="col-sm-2 control-label">文章内容地址</div>
+			   	<div  v-show="article.contentType == 2" class="col-sm-2 control-label">音频地址</div>
+			   	<div  v-show="article.contentType == 3" class="col-sm-2 control-label">视频地址</div>
+			   	<div class="col-sm-10">
+			      <input id="url" type="text" class="form-control" v-model="article.url" placeholder="文章链接请直接粘贴此处"/>
+			   	  <button v-show="article.contentType != 1" class="btn btn-default" type="button" id="upload2">选择文件</button>
+			    </div>
+			</div>
+			<div class="form-group">
+			   	<div class="col-sm-2 control-label">排序</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="article.playOrder" placeholder="排序"/>
+			   		数字越小，排名越靠前，默认按创建时间排序
+			    </div>
+			</div>
+				<div class="form-group">
+			   	<div class="col-sm-2 control-label">时长/阅读时长</div>
+			   	<div class="col-sm-10">
+			      <input type="text" class="form-control" v-model="article.duration" placeholder="比如：12：00"/>
+			    </div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label"></div> 
+				<input type="button" class="btn btn-primary" @click="saveOrUpdate" value="确定"/>
+				&nbsp;&nbsp;<input type="button" class="btn btn-warning" @click="reload" value="返回"/>
+			</div>
+		</form>
+	</div>
+</div>
+<!-- 选择主题 -->
+<div id="themeLayer" style="display: none;padding:10px;">
+	<ul id="themeTree" class="ztree"></ul>
+</div>
+<script type="text/javascript">
+	function deleteMultiImage(elm){
+		$(elm).parent().remove();
+		$("#coverImg").val("");
+		$("#upload").show();
+	}
+</script>
+<script src="../../js/modules/article/article.js"></script>
+</body>
+</html>

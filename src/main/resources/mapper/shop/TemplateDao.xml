@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ms1491.modules.shop.dao.TemplateDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.ms1491.modules.shop.entity.TemplateEntity" id="templateMap">
+        <result property="templateId" column="template_id"/>
+        <result property="name" column="name"/>
+        <result property="code" column="code"/>
+        <result property="delete" column="delete"/>
+        <result property="model" column="model"/>
+        <result property="picture" column="picture"/>
+        <result property="ad" column="ad"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="com.ms1491.modules.shop.entity.TemplateEntity">
+		select * from shop_template where  template_id = #{value}
+	</select>
+
+	<select id="queryList" resultType="com.ms1491.modules.shop.entity.TemplateEntity">
+		select t.* 
+		<if test="storeId != null and storeId.trim() !=''">
+			,(select count(*) from shop_store s where s.template_code =t.code and s.store_id=#{storeId} ) as status
+		</if>
+		from shop_template t
+		where 1=1
+		<if test="delete != null">
+			and t.delete = #{delete}
+		</if>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by template_id
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from shop_template 
+	</select>
+	 
+	<insert id="save" parameterType="com.ms1491.modules.shop.entity.TemplateEntity">
+		insert into shop_template
+		(
+			`template_id`, 
+			`name`, 
+			`code`, 
+			`model`, 
+			`delete`,
+			`picture`,
+			`ad`
+		)
+		values
+		(
+			#{templateId}, 
+			#{name}, 
+			#{code}, 
+			#{model},
+			#{delete},
+			#{picture},
+			#{ad}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ms1491.modules.shop.entity.TemplateEntity">
+		update shop_template 
+		<set>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="code != null">`code` = #{code}, </if>
+			<if test="model != null">`model` = #{model}, </if>
+			<if test="delete != null">`delete` = #{delete}, </if>
+			<if test="picture != null">`picture` = #{picture},</if>
+			<if test="ad != null">`ad` = #{ad}</if>
+		</set>
+		where template_id = #{templateId}
+	</update>
+	
+	<delete id="delete">
+		delete from shop_template where template_id = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from shop_template where template_id in 
+		<foreach item="templateId" collection="array" open="(" separator="," close=")">
+			#{templateId}
+		</foreach>
+	</delete>
+
+</mapper>

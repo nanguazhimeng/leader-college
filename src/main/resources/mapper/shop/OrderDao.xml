@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ms1491.modules.shop.dao.OrderDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.ms1491.modules.shop.entity.OrderEntity" id="orderMap">
+        <result property="orderId" column="ORDER_ID"/>
+        <result property="projectId" column="PROJECT_ID"/>
+        <result property="status" column="STATUS"/>
+        <result property="openid" column="OPENID"/>
+        <result property="projectName" column="PROJECT_NAME"/>
+        <result property="price" column="PRICE"/>
+        <result property="costprice" column="COSTPRICE"/>
+        <result property="goodsprice" column="GOODSPRICE"/>
+        <result property="discount" column="DISCOUNT"/>
+        <result property="discounttestmoney" column="DISCOUNTTESTMONEY"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="fintime" column="FINTIME"/>
+        <result property="uid" column="UID"/>
+        <result property="tradeState" column="TRADE_STATE"/>
+        <result property="type" column="TYPE"/>
+        <result property="expertName" column="EXPERT_NAME"/>
+        <result property="outTradeNo" column="OUT_TRADE_NO"/>
+        <result property="score" column="SCORE"/>
+        <result property="msg" column="MSG"/>
+        <result property="scoreTime" column="SCORE_TIME"/>
+        <result property="payType" column="PAY_TYPE"/>
+        <result property="expressId" column="EXPRESS_ID"/>
+        <result property="expressCompany" column="EXPRESS_COMPANY"/>
+        <result property="adress" column="ADRESS"/>
+        <result property="remark" column="REMARK"/>
+        <result property="expressFee" column="EXPRESS_FEE"/>
+        <result property="cartIds" column="CART_IDS"/>
+        <result property="transactionType" column="TRANSACTION_TYPE"/>
+        <result property="storeId" column="store_id"/>
+        <result property="username" column="username"/>
+        <result property="phone" column="phone"/>
+        <result property="storeName" column="storeName"/>
+        <result property="address" column="address"/>
+        <result property="addressMobile" column="addressMobile"/>
+        <result property="addressUsername" column="addressUsername"/>
+    </resultMap>
+    <resultMap type="com.ms1491.modules.api.entity.StoreOrderEntity" id="storeOrderMap">
+        <result property="status" column="STATUS"/>
+        <result property="price" column="PRICE"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="outTradeNo" column="OUT_TRADE_NO"/>
+        <result property="img" column="IMG"/>
+        <result property="price" column="PRICE"/>
+        <result property="title" column="TITLE"/>
+        <result property="total" column="TOTAL"/>
+        <result property="sales" column="SALES"/>
+        <result property="storeName" column="STORE_NAME"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="com.ms1491.modules.shop.entity.OrderEntity">
+		select o.*, u.USERNAME as username ,u.PHONE as phone,s.name as storeName,
+			a.USERNAME as addressUsername,a.mobile as addressMobile ,a.ADDRESS as address
+			from sys_order o
+			left join sys_app_user u on u.user_id = o.uid
+			left join shop_store s on s.store_id = o.store_id
+			left join sys_app_user_address a on a.UID = o.UID
+		where o.ORDER_ID = #{value}
+	</select>
+
+	<select id="queryList" resultType="com.ms1491.modules.shop.entity.OrderEntity">
+		select o.*, u.USERNAME as username ,u.PHONE as phone,s.name as storeName
+		from sys_order o
+		left join sys_app_user u on u.user_id = o.uid
+		left join shop_store s on s.store_id = o.store_id
+		where 1=1
+        <if test="outTradeNo != null and outTradeNo.trim() != ''">
+            and o.out_trade_no = #{outTradeNo}
+        </if>
+        <if test="status != null and status.trim() != ''">
+            and o.status = #{status}
+        </if>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by o.CREATE_TIME desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="queryStoreOrderList" resultType="com.ms1491.modules.api.entity.StoreOrderEntity">
+   		SELECT 
+			o.STATUS,
+			o.PRICE,
+			o.CREATE_TIME,
+			o.OUT_TRADE_NO,
+			o.STORE_ID,
+			g.IMG,
+			g.TOTAL,
+			g.SALES,
+			g.MARKETPRICE,
+			g.TITLE
+		FROM sys_order o,sys_ordergoods og,shop_goods g
+		
+		WHERE g.goods_id = og.goods_id AND og.order_id = o.order_id AND   
+		o.STORE_ID =#{storeId} AND o.type='leader_shop'
+        <if test="type != null and type == '1'">
+            AND o.status in ('1','2','3')
+        </if>
+        <if test="type != null and type == '0'">
+           	AND o.status in ('0','-1')
+        </if>
+        
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by CREATE_TIME desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from sys_order 
+	</select>
+	 
+	<insert id="save" parameterType="com.ms1491.modules.shop.entity.OrderEntity">
+		insert into sys_order
+		(
+			`ORDER_ID`, 
+			`PROJECT_ID`, 
+			`STATUS`, 
+			`OPENID`, 
+			`PROJECT_NAME`, 
+			`PRICE`, 
+			`COSTPRICE`, 
+			`GOODSPRICE`, 
+			`DISCOUNT`, 
+			`DISCOUNTTESTMONEY`, 
+			`CREATE_TIME`, 
+			`FINTIME`, 
+			`UID`, 
+			`TRADE_STATE`, 
+			`TYPE`, 
+			`EXPERT_NAME`, 
+			`OUT_TRADE_NO`, 
+			`SCORE`, 
+			`MSG`, 
+			`SCORE_TIME`, 
+			`PAY_TYPE`, 
+			`EXPRESS_ID`, 
+			`EXPRESS_COMPANY`, 
+			`ADRESS`, 
+			`REMARK`, 
+			`EXPRESS_FEE`, 
+			`CART_IDS`, 
+			`TRANSACTION_TYPE`, 
+			`store_id`
+		)
+		values
+		(
+			#{orderId}, 
+			#{projectId}, 
+			#{status}, 
+			#{openid}, 
+			#{projectName}, 
+			#{price}, 
+			#{costprice}, 
+			#{goodsprice}, 
+			#{discount}, 
+			#{discounttestmoney}, 
+			#{createTime}, 
+			#{fintime}, 
+			#{uid}, 
+			#{tradeState}, 
+			#{type}, 
+			#{expertName}, 
+			#{outTradeNo}, 
+			#{score}, 
+			#{msg}, 
+			#{scoreTime}, 
+			#{payType}, 
+			#{expressId}, 
+			#{expressCompany}, 
+			#{adress}, 
+			#{remark}, 
+			#{expressFee}, 
+			#{cartIds}, 
+			#{transactionType}, 
+			#{storeId}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ms1491.modules.shop.entity.OrderEntity">
+		update sys_order 
+		<set>
+			<if test="projectId != null">`PROJECT_ID` = #{projectId}, </if>
+			<if test="status != null">`STATUS` = #{status}, </if>
+			<if test="openid != null">`OPENID` = #{openid}, </if>
+			<if test="projectName != null">`PROJECT_NAME` = #{projectName}, </if>
+			<if test="price != null">`PRICE` = #{price}, </if>
+			<if test="costprice != null">`COSTPRICE` = #{costprice}, </if>
+			<if test="goodsprice != null">`GOODSPRICE` = #{goodsprice}, </if>
+			<if test="discount != null">`DISCOUNT` = #{discount}, </if>
+			<if test="discounttestmoney != null">`DISCOUNTTESTMONEY` = #{discounttestmoney}, </if>
+			<if test="createTime != null">`CREATE_TIME` = #{createTime}, </if>
+			<if test="fintime != null">`FINTIME` = #{fintime}, </if>
+			<if test="uid != null">`UID` = #{uid}, </if>
+			<if test="tradeState != null">`TRADE_STATE` = #{tradeState}, </if>
+			<if test="type != null">`TYPE` = #{type}, </if>
+			<if test="expertName != null">`EXPERT_NAME` = #{expertName}, </if>
+			<if test="outTradeNo != null">`OUT_TRADE_NO` = #{outTradeNo}, </if>
+			<if test="score != null">`SCORE` = #{score}, </if>
+			<if test="msg != null">`MSG` = #{msg}, </if>
+			<if test="scoreTime != null">`SCORE_TIME` = #{scoreTime}, </if>
+			<if test="payType != null">`PAY_TYPE` = #{payType}, </if>
+			<if test="expressId != null">`EXPRESS_ID` = #{expressId}, </if>
+			<if test="expressCompany != null">`EXPRESS_COMPANY` = #{expressCompany}, </if>
+			<if test="adress != null">`ADRESS` = #{adress}, </if>
+			<if test="remark != null">`REMARK` = #{remark}, </if>
+			<if test="expressFee != null">`EXPRESS_FEE` = #{expressFee}, </if>
+			<if test="cartIds != null">`CART_IDS` = #{cartIds}, </if>
+			<if test="transactionType != null">`TRANSACTION_TYPE` = #{transactionType}, </if>
+			<if test="storeId != null">`store_id` = #{storeId}</if>
+		</set>
+		where ORDER_ID = #{orderId}
+	</update>
+	
+	<delete id="delete">
+		delete from sys_order where ORDER_ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from sys_order where ORDER_ID in 
+		<foreach item="orderId" collection="array" open="(" separator="," close=")">
+			#{orderId}
+		</foreach>
+	</delete>
+
+</mapper>

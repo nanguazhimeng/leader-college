@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ms1491.modules.shop.dao.GoodsDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.ms1491.modules.shop.entity.GoodsEntity" id="goodsMap">
+        <result property="goodsId" column="GOODS_ID"/>
+        <result property="type" column="TYPE"/>
+        <result property="title" column="TITLE"/>
+        <result property="description" column="DESCRIPTION"/>
+        <result property="content" column="CONTENT"/>
+        <result property="contentTxt" column="CONTENT_TXT"/>
+        <result property="marketprice" column="MARKETPRICE"/>
+        <result property="costprice" column="COSTPRICE"/>
+        <result property="originalprice" column="ORIGINALPRICE"/>
+        <result property="total" column="TOTAL"/>
+        <result property="totalcnf" column="TOTALCNF"/>
+        <result property="createtime" column="CREATETIME"/>
+        <result property="img" column="IMG"/>
+        <result property="imgDetail" column="IMG_DETAIL"/>
+        <result property="imgs" column="IMGS"/>
+        <result property="maxbuy" column="MAXBUY"/>
+        <result property="usermaxbuy" column="USERMAXBUY"/>
+        <result property="isnew" column="ISNEW"/>
+        <result property="isrecommand" column="ISRECOMMAND"/>
+        <result property="ishot" column="ISHOT"/>
+        <result property="isdiscount" column="ISDISCOUNT"/>
+        <result property="istime" column="ISTIME"/>
+        <result property="issendfree" column="ISSENDFREE"/>
+        <result property="isshow" column="ISSHOW"/>
+        <result property="deleted" column="DELETED"/>
+        <result property="score" column="SCORE"/>
+        <result property="sales" column="SALES"/>
+        <result property="shareTitle" column="SHARE_TITLE"/>
+        <result property="shareIcon" column="SHARE_ICON"/>
+        <result property="shareDesc" column="SHARE_DESC"/>
+        <result property="goodscategoryId" column="GOODSCATEGORY_ID"/>
+        <result property="goodscategoryName" column="goodscategoryName"/>
+        <result property="displayorder" column="DISPLAYORDER"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="com.ms1491.modules.shop.entity.GoodsEntity">
+		select * from shop_goods where GOODS_ID = #{value}
+	</select>
+
+	<select id="queryList" resultType="com.ms1491.modules.shop.entity.GoodsEntity">
+		select g.*,(select gc.name from SHOP_GOODSCATEGORY gc where gc.GOODSCATEGORY_ID =g.GOODSCATEGORY_ID) as goodscategoryName 
+		from shop_goods g 
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by g.GOODS_ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from shop_goods 
+	</select>
+	 
+	<insert id="save" parameterType="com.ms1491.modules.shop.entity.GoodsEntity">
+		insert into shop_goods
+		(
+			`GOODS_ID`, 
+			`TYPE`, 
+			`TITLE`, 
+			`DESCRIPTION`, 
+			`CONTENT`, 
+			`CONTENT_TXT`, 
+			`MARKETPRICE`, 
+			`COSTPRICE`, 
+			`ORIGINALPRICE`, 
+			`TOTAL`, 
+			`TOTALCNF`, 
+			`CREATETIME`, 
+			`IMG`, 
+			`IMG_DETAIL`, 
+			`IMGS`, 
+			`MAXBUY`, 
+			`USERMAXBUY`, 
+			`ISNEW`, 
+			`ISRECOMMAND`, 
+			`ISHOT`, 
+			`ISDISCOUNT`, 
+			`ISTIME`, 
+			`ISSENDFREE`, 
+			`ISSHOW`, 
+			`DELETED`, 
+			`SCORE`, 
+			`SALES`, 
+			`SHARE_TITLE`, 
+			`SHARE_ICON`, 
+			`SHARE_DESC`, 
+			`GOODSCATEGORY_ID`, 
+			`DISPLAYORDER`
+		)
+		values
+		(
+			#{goodsId}, 
+			#{type}, 
+			#{title}, 
+			#{description}, 
+			#{content}, 
+			#{contentTxt}, 
+			#{marketprice}, 
+			#{costprice}, 
+			#{originalprice}, 
+			#{total}, 
+			#{totalcnf}, 
+			#{createtime}, 
+			#{img}, 
+			#{imgDetail}, 
+			#{imgs}, 
+			#{maxbuy}, 
+			#{usermaxbuy}, 
+			#{isnew}, 
+			#{isrecommand}, 
+			#{ishot}, 
+			#{isdiscount}, 
+			#{istime}, 
+			#{issendfree}, 
+			#{isshow}, 
+			#{deleted}, 
+			#{score}, 
+			#{sales}, 
+			#{shareTitle}, 
+			#{shareIcon}, 
+			#{shareDesc}, 
+			#{goodscategoryId}, 
+			#{displayorder}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ms1491.modules.shop.entity.GoodsEntity">
+		update shop_goods 
+		<set>
+			<if test="type != null">`TYPE` = #{type}, </if>
+			<if test="title != null">`TITLE` = #{title}, </if>
+			<if test="description != null">`DESCRIPTION` = #{description}, </if>
+			<if test="content != null">`CONTENT` = #{content}, </if>
+			<if test="contentTxt != null">`CONTENT_TXT` = #{contentTxt}, </if>
+			<if test="marketprice != null">`MARKETPRICE` = #{marketprice}, </if>
+			<if test="costprice != null">`COSTPRICE` = #{costprice}, </if>
+			<if test="originalprice != null">`ORIGINALPRICE` = #{originalprice}, </if>
+			<if test="total != null">`TOTAL` = #{total}, </if>
+			<if test="totalcnf != null">`TOTALCNF` = #{totalcnf}, </if>
+			<if test="createtime != null">`CREATETIME` = #{createtime}, </if>
+			<if test="img != null">`IMG` = #{img}, </if>
+			<if test="imgDetail != null">`IMG_DETAIL` = #{imgDetail}, </if>
+			<if test="imgs != null">`IMGS` = #{imgs}, </if>
+			<if test="maxbuy != null">`MAXBUY` = #{maxbuy}, </if>
+			<if test="usermaxbuy != null">`USERMAXBUY` = #{usermaxbuy}, </if>
+			<if test="isnew != null">`ISNEW` = #{isnew}, </if>
+			<if test="isrecommand != null">`ISRECOMMAND` = #{isrecommand}, </if>
+			<if test="ishot != null">`ISHOT` = #{ishot}, </if>
+			<if test="isdiscount != null">`ISDISCOUNT` = #{isdiscount}, </if>
+			<if test="istime != null">`ISTIME` = #{istime}, </if>
+			<if test="issendfree != null">`ISSENDFREE` = #{issendfree}, </if>
+			<if test="isshow != null">`ISSHOW` = #{isshow}, </if>
+			<if test="deleted != null">`DELETED` = #{deleted}, </if>
+			<if test="score != null">`SCORE` = #{score}, </if>
+			<if test="sales != null">`SALES` = #{sales}, </if>
+			<if test="shareTitle != null">`SHARE_TITLE` = #{shareTitle}, </if>
+			<if test="shareIcon != null">`SHARE_ICON` = #{shareIcon}, </if>
+			<if test="shareDesc != null">`SHARE_DESC` = #{shareDesc}, </if>
+			<if test="goodscategoryId != null">`GOODSCATEGORY_ID` = #{goodscategoryId}, </if>
+			<if test="displayorder != null">`DISPLAYORDER` = #{displayorder}</if>
+		</set>
+		where GOODS_ID = #{goodsId}
+	</update>
+	
+	<delete id="delete">
+		delete from shop_goods where GOODS_ID = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from shop_goods where GOODS_ID in 
+		<foreach item="goodsId" collection="array" open="(" separator="," close=")">
+			#{goodsId}
+		</foreach>
+	</delete>
+
+</mapper>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ms1491.modules.shop.dao.StoreDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.ms1491.modules.shop.entity.StoreEntity" id="storeMap">
+        <result property="storeId" column="store_id"/>
+        <result property="uid" column="uid"/>
+        <result property="icon" column="icon"/>
+        <result property="name" column="name"/>
+        <result property="introduction" column="introduction"/>
+        <result property="phone" column="phone"/>
+        <result property="templateCode" column="template_code"/>
+        <result property="fans" column="fans"/>
+        <result property="ad" column="ad"/>
+        <result property="total" column="total"/>
+        <result property="newTotal" column="newTotal"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="com.ms1491.modules.shop.entity.StoreEntity">
+		select s.*,
+		(select r.FANS from sys_app_user_relationship r where r.UID=s.uid) as fans,
+		(select t.ad from shop_template t where s.template_code = t.code)as ad,
+		(select count(*) from shop_store_goods sg where sg.store_id=s.store_id) as total,
+		(select count(*) from shop_store_goods sg ,shop_goods g where sg.store_id=s.store_id AND g.goods_id=sg.goods_id AND g.ISNEW=1 ) as newTotal
+	    from shop_store s
+		where store_id = #{value}
+	</select>
+	
+	<select id="queryObjectByUid" resultType="com.ms1491.modules.shop.entity.StoreEntity">
+		select * from shop_store where uid = #{value}
+	</select>
+	<select id="queryList" resultType="com.ms1491.modules.shop.entity.StoreEntity">
+		select * from shop_store
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by store_id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from shop_store 
+	</select>
+	 
+	<insert id="save" parameterType="com.ms1491.modules.shop.entity.StoreEntity">
+		insert into shop_store
+		(
+			`store_id`, 
+			`uid`, 
+			`icon`, 
+			`name`, 
+			`introduction`, 
+			`phone`,
+			`template_code`
+		)
+		values
+		(
+			#{storeId}, 
+			#{uid}, 
+			#{icon}, 
+			#{name}, 
+			#{introduction}, 
+			#{phone},
+			#{templateCode}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ms1491.modules.shop.entity.StoreEntity">
+		update shop_store 
+		<set>
+			<if test="uid != null and uid.trim() != ''">`uid` = #{uid}, </if>
+			<if test="icon != null and icon.trim() != ''">`icon` = #{icon}, </if>
+			<if test="name != null and name.trim() != ''">`name` = #{name}, </if>
+			<if test="introduction != null and introduction.trim() != ''">`introduction` = #{introduction}, </if>
+			<if test="phone != null and phone.trim() != ''">`phone` = #{phone},</if>
+			<if test="templateCode != null and templateCode.trim() != ''">`template_code` = #{templateCode}</if>
+		</set>
+		where store_id = #{storeId}
+	</update>
+	
+	<delete id="delete">
+		delete from shop_store where store_id = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from shop_store where store_id in 
+		<foreach item="storeId" collection="array" open="(" separator="," close=")">
+			#{storeId}
+		</foreach>
+	</delete>
+
+</mapper>

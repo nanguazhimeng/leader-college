@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ms1491.modules.college.dao.CourseDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.ms1491.modules.college.entity.CourseEntity" id="courseMap">
+        <result property="courseId" column="course_id"/>
+        <result property="collegeId" column="college_id"/>
+        <result property="collegeName" column="collegeName"/>
+        <result property="name" column="name"/>
+        <result property="startTime" column="start_time"/>
+        <result property="place" column="place"/>
+        <result property="leaderName" column="leader_name"/>
+        <result property="courseIntroduction" column="course_introduction"/>
+        <result property="status" column="status"/>
+        <result property="signupLimit" column="signup_limit"/>
+        <result property="signupLimitContent" column="signup_limit_content"/>
+        <result property="coverImg" column="cover_img"/>
+        <result property="contentReview" column="content_review"/>
+        <result property="videoReview" column="video_review"/>
+        <result property="createTime" column="create_time"/>
+        <result property="hasSignup" column="hasSignup"/>
+        <result property="signupNumber" column="signupNumber"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="com.ms1491.modules.college.entity.CourseEntity">
+		SELECT * from college_course  where course_id = #{value}
+	</select>
+	
+	<select id="queryObjectByUidAndCourseId" resultType="com.ms1491.modules.college.entity.CourseEntity">
+		SELECT course.*
+      	<if test="uid != null and uid.trim() != ''">
+			,(SELECT COUNT(*) FROM college_user_course userCourse WHERE userCourse.course_id = course.course_id AND userCourse.uid=#{uid}) AS hasSignup 
+		</if>
+		from college_course course where course.course_id = #{courseId}
+	</select>
+	
+	<select id="queryList" resultType="com.ms1491.modules.college.entity.CourseEntity">
+		select 
+		course.course_id,
+		course.name,
+		course.start_time,
+		course.place,
+		course.course_introduction,
+		course.status,
+		course.leader_name,
+		course.signup_limit,
+		course.signup_limit_content,
+		course.cover_img,
+		course.create_time,
+		course.college_id,
+		<if test="uid != null and uid.trim() != ''">
+			(select count(*) from college_user_course uc where uc.course_id = course.course_id AND uc.uid=#{uid}) as hasSignup,
+		</if>
+		(select count(*) from college_user_course uc2 where uc2.course_id = course.course_id) as signupNumber,
+		(select title from college_college college where college.college_id = course.college_id) as collegeName  from college_course course
+        where 1=1
+      	<if test="collegeId != null">
+			AND course.college_id = #{collegeId}
+		</if>
+		<if test="status != null">
+			AND course.status = #{status}
+		</if>
+      	<if test="place != null and place.trim() != ''">
+			AND course.place = #{place}
+		</if>
+      	<if test="leaderName != null and leaderName.trim() != ''">
+			AND course.leader_name = #{leaderName}
+		</if>
+		<if test="startTime !=null and startTime !=''"> 
+			AND course.start_time LIKE CONCAT(CONCAT('%', #{startTime}),'%') 
+		</if>
+		<if test="name != null and name.trim() != ''">
+			and course.name like concat('%',#{name},'%') 
+		</if>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by course_id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from college_course 
+	</select>
+	 
+	<insert id="save" parameterType="com.ms1491.modules.college.entity.CourseEntity">
+		insert into college_course
+		(
+			`course_id`, 
+			`college_id`, 
+			`name`, 
+			`start_time`, 
+			`place`, 
+			`leader_name`, 
+			`course_introduction`, 
+			`status`, 
+			`signup_limit`,
+			`signup_limit_content`,
+			`cover_img`, 
+			`content_review`, 
+			`video_review`, 
+			`create_time`
+		)
+		values
+		(
+			#{courseId}, 
+			#{collegeId}, 
+			#{name}, 
+			#{startTime}, 
+			#{place}, 
+			#{leaderName}, 
+			#{courseIntroduction}, 
+			#{status}, 
+			#{signupLimit}, 
+			#{signupLimitContent},
+			#{coverImg}, 
+			#{contentReview}, 
+			#{videoReview}, 
+			#{createTime}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.ms1491.modules.college.entity.CourseEntity">
+		update college_course 
+		<set>
+			<if test="collegeId != null">`college_id` = #{collegeId}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="startTime != null">`start_time` = #{startTime}, </if>
+			<if test="place != null">`place` = #{place}, </if>
+			<if test="leaderName != null">`leader_name` = #{leaderName}, </if>
+			<if test="courseIntroduction != null">`course_introduction` = #{courseIntroduction}, </if>
+			<if test="status != null">`status` = #{status}, </if>
+			<if test="signupLimit != null">`signup_limit` = #{signupLimit}, </if>
+			<if test="signupLimitContent != null">`signup_limit_content` = #{signupLimitContent}, </if>
+			<if test="coverImg != null">`cover_img` = #{coverImg}, </if>
+			<if test="contentReview != null">`content_review` = #{contentReview}, </if>
+			<if test="videoReview != null">`video_review` = #{videoReview}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}</if>
+		</set>
+		where course_id = #{courseId}
+	</update>
+	
+	<delete id="delete">
+		delete from college_course where course_id = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from college_course where course_id in 
+		<foreach item="courseId" collection="array" open="(" separator="," close=")">
+			#{courseId}
+		</foreach>
+	</delete>
+
+	<update id="finishBatch">
+		update college_course set status = 1
+		where course_id in 
+		<foreach item="courseId" collection="array" open="(" separator="," close=")">
+			#{courseId}
+		</foreach>
+	</update>
+</mapper>
