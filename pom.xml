@@ -38,7 +38,7 @@
 		<pack-name>${artifactId}-${version}.jar</pack-name>
 		<remote-addr>118.178.124.25:22</remote-addr>
 		<remote-username>root</remote-username>
-		<remote-passwd>Msn131491</remote-passwd>
+		<remote-passwd>123456</remote-passwd>
 		
 		<weixin-sdk.version>4.0.0</weixin-sdk.version>
 	</properties>
